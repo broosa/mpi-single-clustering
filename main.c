@@ -3,7 +3,22 @@
 #include <mpi.h>
 #include <stdbool.h>
 
-bool is_match(char *a, char *b, int len, int max);
+bool is_match(char *a, char *b, int len, int max)
+{
+	int diff = 0;
+	for (int j = 0; j < len; j += 6)
+	{
+		diff += (a[j    ] != b[j    ]);
+		diff += (a[j + 1] != b[j + 1]);
+		diff += (a[j + 2] != b[j + 2]);
+		diff += (a[j + 3] != b[j + 3]);
+		diff += (a[j + 4] != b[j + 4]);
+		diff += (a[j + 5] != b[j + 5]);
+		if (diff > max)
+			return false;
+	}
+	return true;
+}
 
 int main(int argc, char *argv)
 {
