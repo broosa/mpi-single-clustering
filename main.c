@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <string.h>
 
+int get_tuples(char* strings, int* counts);
 bool is_match(char *a, char *b, int len, int max);
 int is_match_char(char a, char b);
 
@@ -155,6 +156,46 @@ int main(int argc, char **argv)
 	free(a); free(local_a);
 	MPI_Finalize();
 	exit(0);
+}
+
+int get_tuples(char* strings, int* counts) {
+    char str[length + 1];
+    int current_string_count;
+
+    {
+        event("opening file");
+        FILE* f = fopen("/cluster/home/charliep/courses/cs360/single-linkage-clustering/Iceland2014.trim.contigs.good.unique.good.filter.unique.count.fasta", "r");
+        if(f == NULL) error("file was unable to be opened");
+
+        event("reading file");
+        //@note #this could be more robust but the input is well-formatted so meh
+        while(fscanf(f, "%s", str) != EOF) {
+            strcpy(&strings[length * current_string_count], str);
+            //printf("str: %s\n", str);
+
+            //get the count
+            //@note #could probably use fscanf instead
+            fscanf(f, "%s", str);
+            counts[current_string_count] = atoi(str);
+
+            current_string_count++;
+
+            //@hack #debugging
+            if(current_string_count >= 100) break;
+
+            if(current_string_count > max_string_count) {
+                error("number of tuples in file is greater than maximum allowed\n");
+            }
+        }
+
+        //debug("loaded %d tuples", current_string_count);
+
+        event("closing file");
+        fclose(f);
+        free(f);
+    }
+
+    return current_string_count;
 }
 
 bool is_match(char *a, char *b, int len, int max)
